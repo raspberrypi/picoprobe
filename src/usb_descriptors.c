@@ -41,7 +41,11 @@ tusb_desc_device_t const desc_device =
     .bMaxPacketSize0    = CFG_TUD_ENDPOINT0_SIZE,
 
     .idVendor           = 0x2E8A, // Pi
+#if PICO_NO_FLASH
+    .idProduct          = 0xF004, // Picoprobe - debug
+#else
     .idProduct          = 0x0004, // Picoprobe
+#endif
     .bcdDevice          = 0x0100, // Version 01.00
     .iManufacturer      = 0x01,
     .iProduct           = 0x02,
@@ -65,6 +69,8 @@ enum
   ITF_NUM_CDC_COM,
   ITF_NUM_CDC_DATA,
   ITF_NUM_PROBE,
+  ITF_NUM_CDC_SUMP_COM,
+  ITF_NUM_CDC_SUMP_DATA,
   ITF_NUM_TOTAL
 };
 
@@ -73,8 +79,12 @@ enum
 #define CDC_DATA_IN_EP_NUM 0x83
 #define PROBE_OUT_EP_NUM 0x04
 #define PROBE_IN_EP_NUM 0x85
+#define CDC_SUMP_NOTIFICATION_EP_NUM 0x86
+#define CDC_SUMP_DATA_OUT_EP_NUM 0x07
+#define CDC_SUMP_DATA_IN_EP_NUM 0x88
 
-#define CONFIG_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + TUD_CDC_DESC_LEN + TUD_VENDOR_DESC_LEN)
+#define CONFIG_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + TUD_CDC_DESC_LEN + \
+                           TUD_VENDOR_DESC_LEN + TUD_CDC_DESC_LEN)
 
 uint8_t const desc_configuration[] =
 {
@@ -84,8 +94,11 @@ uint8_t const desc_configuration[] =
   TUD_CDC_DESCRIPTOR(ITF_NUM_CDC_COM, 0, CDC_NOTIFICATION_EP_NUM, 64, CDC_DATA_OUT_EP_NUM, CDC_DATA_IN_EP_NUM, 64),
 
   // Interface 2
-  TUD_VENDOR_DESCRIPTOR(ITF_NUM_PROBE, 0, PROBE_OUT_EP_NUM, PROBE_IN_EP_NUM, 64)
+  TUD_VENDOR_DESCRIPTOR(ITF_NUM_PROBE, 0, PROBE_OUT_EP_NUM, PROBE_IN_EP_NUM, 64),
 
+  // Interface 3 + 4
+  TUD_CDC_DESCRIPTOR(ITF_NUM_CDC_SUMP_COM, 0, CDC_SUMP_NOTIFICATION_EP_NUM, 64,
+                     CDC_SUMP_DATA_OUT_EP_NUM, CDC_SUMP_DATA_IN_EP_NUM, 64)
 };
 
 // Invoked when received GET CONFIGURATION DESCRIPTOR

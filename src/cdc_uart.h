@@ -27,6 +27,7 @@
 #define CDC_UART_H
 
 void cdc_uart_init(void);
-void cdc_task(void);
+void cdc_uart_task(void);
+void cdc_uart_line_coding(cdc_line_coding_t const* line_coding);
 
 #endif
